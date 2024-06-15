@@ -91,7 +91,7 @@ hcdn_table <- function(hcdn, st_code){
   
   error_stations <-c()
 
-  pb <- txtProgressBar(min = 0, max = 743, initial = 0) 
+  pb <- txtProgressBar(min = 0, max = 743, style = 3) 
   count <- 0
   
   for (station in hcdn){
@@ -100,7 +100,7 @@ hcdn_table <- function(hcdn, st_code){
     
     count <- count + 1
     
-    site_info <- dataRetrieval::readNWISsite(station)
+    site_info <- try(dataRetrieval::readNWISsite(station), silent = true)
     station_id <- site_info$site_no
     if (is.null(station_id)) {
       error_stations[length(error_stations)+1] <- station
@@ -108,6 +108,7 @@ hcdn_table <- function(hcdn, st_code){
     }
     
     if (is.na(site_info$huc_cd)) {
+      browser()
       error_stations[length(error_stations)+1] <- station
       huc2 <- NA
       huc4 <- NA
@@ -150,6 +151,7 @@ hcdn_table <- function(hcdn, st_code){
 
   }
   
+  close(pb)
   
   n_err <- length(error_stations)
   

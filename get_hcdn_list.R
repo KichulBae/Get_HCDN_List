@@ -19,19 +19,17 @@ st_code <- load_stcode("online") # Get state code
 hcdn <- load_hcdn("online") # Get HCDN2009 stations list
 
 result <- hcdn_table(hcdn, st_code) # Return HCDN stations table with basic info
+### For some reasons DataRetrieval cannot provide HUC code for station "06154410" currently (15 Jun 2024). It used to work (HUC2:10, HUC4:05) ###
 
-saveRDS(result,"hcdn_list/table_hcdn.RData")
-
+#saveRDS(result,"hcdn_list/table_hcdn.RData")
 
 table_hcdn <- readRDS("hcdn_list/table_hcdn.RData")
 
 list_hcdn_conus <- make_list_hcdn(table_hcdn, conus = T) # Return 704 HCDN stations list in CONUS (HUC2: 1~18)
-saveRDS(list_hcdn_conus,"HCDN_LIST/list_hcdn_conus.RData")
+#saveRDS(list_hcdn_conus,"HCDN_LIST/list_hcdn_conus.RData")
 
 list_hcdn_all <- make_list_hcdn(table_hcdn, conus = F) # Return all 743 HCDN stations list 
-saveRDS(list_hcdn_all,"HCDN_LIST/list_hcdn_all.RData")
-
-
+#saveRDS(list_hcdn_all,"HCDN_LIST/list_hcdn_all.RData")
 
 
 
