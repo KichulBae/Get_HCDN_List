@@ -4,15 +4,14 @@
 
 load_stcode <- function(
     source = c("local", "online"), 
-    filepath = "~/spatial_dependence_ipeak/USGS_SOURCE/"
+    filepath = "USGS_SOURCE/state_cd_usgs.csv"
 ) {
   
   if (source == "online") {
     url = "https://www2.census.gov/geo/docs/reference/state.txt"
     st_code <- read.table(url(url), sep = "|", header = T)
   } else {
-    setwd(filepath)
-    st_code <- read.csv("state_cd_usgs.csv")
+    st_code <- read.csv(filepath)
   }
   
   st_code$STATE <- as.character(st_code$STATE)
@@ -40,7 +39,7 @@ load_stcode <- function(
 
 load_hcdn <- function(
     source = c("local", "online"),
-    filepath = "~/spatial_dependence_ipeak/USGS_SOURCE/"
+    filepath = "USGS_SOURCE/hcdn2009_list.txt"
 ) {
   
   if (source == "online") {
@@ -48,9 +47,9 @@ load_hcdn <- function(
     tables <- openxlsx::read.xlsx(URL)
     hcdn <- tables$STATION.ID
   } else {
-    setwd(filepath)
-    hcdn <- read.csv("hcdn2009_list.txt")
+    hcdn <- read.csv(filepath)
     hcdn <- hcdn$station.ID
+    hcdn[hcdn == "344894205"] <- "0344894205"
   }
   
   n <- length(hcdn)
@@ -91,8 +90,15 @@ hcdn_table <- function(hcdn, st_code){
   )
   
   error_stations <-c()
+
+  pb <- txtProgressBar(min = 0, max = 743, initial = 0) 
+  count <- 0
   
   for (station in hcdn){
+    
+    setTxtProgressBar(pb,count)
+    
+    count <- count + 1
     
     site_info <- dataRetrieval::readNWISsite(station)
     station_id <- site_info$site_no
@@ -101,8 +107,15 @@ hcdn_table <- function(hcdn, st_code){
       next
     }
     
-    huc2 <- substring(site_info$huc_cd, 1, 2)
-    huc4 <- substring(site_info$huc_cd, 3, 4)
+    if (is.na(site_info$huc_cd)) {
+      error_stations[length(error_stations)+1] <- station
+      huc2 <- NA
+      huc4 <- NA
+    } else {
+      huc2 <- substring(site_info$huc_cd, 1, 2)
+      huc4 <- substring(site_info$huc_cd, 3, 4)
+    }
+    
     station_nm = site_info$station_nm
     
     state_code <- site_info$state_cd
@@ -113,7 +126,11 @@ hcdn_table <- function(hcdn, st_code){
     drain_area <- site_info$drain_area_va
     drain_area_contr <- site_info$contrib_drain_area_va
     
-    if (as.numeric(huc2) <= 18) {
+    
+    
+    if (is.na(huc2)) {
+      conus <- NA
+    } else if (as.numeric(huc2) <= 18) {
       conus <- 1
     } else {
       conus <- 0
@@ -129,7 +146,10 @@ hcdn_table <- function(hcdn, st_code){
                                                 drain_area,
                                                 drain_area_contr,
                                                 conus)))
+    
+
   }
+  
   
   n_err <- length(error_stations)
   
