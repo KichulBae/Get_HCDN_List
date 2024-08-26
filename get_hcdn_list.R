@@ -25,6 +25,9 @@ result <- hcdn_table(hcdn, st_code) # Return HCDN stations table with basic info
 
 table_hcdn <- readRDS("hcdn_list/table_hcdn.RData")
 
+write.csv(table_hcdn, "hcdn_list/table_hcdn.csv", row.names = F)
+
+
 list_hcdn_conus <- make_list_hcdn(table_hcdn, conus = T) # Return 704 HCDN stations list in CONUS (HUC2: 1~18)
 #saveRDS(list_hcdn_conus,"HCDN_LIST/list_hcdn_conus.RData")
 
